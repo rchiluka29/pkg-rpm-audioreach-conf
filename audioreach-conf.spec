@@ -1,5 +1,5 @@
 %global debug_package %{nil}
-%global release_num 1
+%global release_num 2
 
 Name:           audioreach-conf
 Version:        1.1.0
@@ -8,6 +8,8 @@ Summary:        AudioReach configuration files
 License:        BSD-3-Clause
 URL:            https://github.com/AudioReach/audioreach-conf
 Source0:        %{url}/archive/refs/tags/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source1:        acdbdata/acdb_cal.acdb
+Source2:        acdbdata/workspaceFileXml.qwsp
 
 ExclusiveArch:  aarch64
 
@@ -42,6 +44,12 @@ autoreconf -fi
 %make_install
 
 find %{buildroot} -name '*.la' -delete
+
+# Workaround: override qcm6490 acdb to remove ECNS-v2 and CFCM modules; suspected SPF/FastRPC issue
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/acdbdata/QCS6490_RB3Gen2/acdb_cal.acdb
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/acdbdata/QCS6490_RB3Gen2/workspaceFileXml.qwsp
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/acdbdata/QCM6490_IDP/acdb_cal.acdb
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/acdbdata/QCM6490_IDP/workspaceFileXml.qwsp
 
 %files
 %license LICENSE
@@ -114,5 +122,8 @@ find %{buildroot} -name '*.la' -delete
 %{_sysconfdir}/card-defs.xml
 
 %changelog
+* Mon Oct 05 2026 Chiluka Rohith <rchiluka@qti.qualcomm.com> - 1.1.0-2
+- qcm6490: override acdb to remove ECNS-v2 and CFCM modules as workaround for deep buffer playback/record failure
+
 * Thu Aug 14 2026 Qualcomm Linux <quic_linux@quicinc.com> - 1.1.0-1
 - Initial RPM packaging of audioreach-conf version 1.1.0
